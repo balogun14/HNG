@@ -52,3 +52,7 @@ def read_hello(visitor_name: str):
             "greeting": f"Hello, {visitor_name}! The temperature is {weather} degrees Celsius in {city}",
         }
     )
+
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run(app)

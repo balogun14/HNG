@@ -3,8 +3,11 @@ from fastapi.responses import JSONResponse
 from requests import get
 import python_weather
 import asyncio
+import socket
 
-ip = get("https://api.ipify.org").text
+hostname = socket.gethostname()
+
+ip = socket.gethostbyname(hostname)
 app = FastAPI()
 
 

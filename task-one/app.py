@@ -1,17 +1,17 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,Request
 from fastapi.responses import JSONResponse
 from requests import get
 import python_weather
 import asyncio
-import socket
 
-hostname = socket.gethostname()
-
-ip = socket.gethostbyname(hostname)
 app = FastAPI()
 
 
-def get_city():
+
+
+
+
+def get_city(ip):
     ip_address = ip
     response = get(f"https://ipapi.co/{ip_address}/json/").json()
     city = response.get("city")
@@ -23,12 +23,7 @@ async def get_weather(city: str) -> int:
         async with python_weather.Client(unit=python_weather.IMPERIAL) as client:
             weather = await client.get(city)
             return weather.temperature
-    except python_weather.exceptions.BadResponseError:
-        # Handle bad response from weather API
-        return None
-    except python_weather.exceptions.BadQueryError:
-        # Handle bad query to weather API
-        return None
+    
     except Exception as e:
         # Handle other exceptions
         return None
@@ -40,8 +35,14 @@ def read_root():
 
 
 @app.get("/api/hello")
-def read_hello(visitor_name: str):
-    city = get_city()
+def read_hello(visitor_name: str,request:Request):
+    ip = ""
+    x_forwarded_for = request.headers.get('x-forwarded-for')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.client.host
+    city = get_city(ip)
     weather = asyncio.run(get_weather(city=city))
     
     if weather is None:
